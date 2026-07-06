@@ -43,6 +43,16 @@ streamlit run app.py
 
 Then open the local URL Streamlit prints (typically `http://localhost:8501`).
 
+## Tests
+
+Unit tests cover the pure data-processing helpers (score normalization, emotion/theme
+detection, confidence scoring, and benchmark ranking). Run them from the repo root with:
+
+```bash
+pip install pytest
+python3 -m pytest tests/
+```
+
 ## Status
 
 **Complete for its current scope.** The app is a single, working `app.py` with no stub functions, TODOs, or obviously missing pieces — all four tabs are fully implemented and the data-loading path has basic error handling (missing file / load errors surface as Streamlit error messages instead of crashing).
@@ -51,4 +61,4 @@ Known limitations, not necessarily bugs to fix, but worth knowing before extendi
 - The dataset path/filename and the ₹150,000 revenue goal are hardcoded in `app.py` rather than configurable.
 - Sentiment/emotion/theme detection use simple keyword lexicons and TextBlob polarity rather than a trained NLP model, so results are a heuristic approximation, not ground truth.
 - The app is tailored specifically to the GATEWAYS 2025 dataset's column names; reusing it for another fest's data would require matching that schema.
-- No automated tests are included.
+- Test coverage is limited to the pure helper functions in `app.py`; the Streamlit UI/chart-rendering code itself isn't covered.
