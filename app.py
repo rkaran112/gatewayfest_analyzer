@@ -631,7 +631,7 @@ with tab2:
     kw = st.text_input("", placeholder="Search keywords: logistics, mentor, food…")
     tbl = fdf[["Student Name", "College", "State", "Event Name", "Rating", "Sentiment", "Feedback on Fest"]].copy()
     if kw:
-        tbl = tbl[tbl["Feedback on Fest"].str.contains(kw, case=False, na=False)]
+        tbl = tbl[tbl["Feedback on Fest"].str.contains(kw, case=False, na=False, regex=False)]
     st.dataframe(tbl.reset_index(drop=True), use_container_width=True, height=320)
 
 with tab4:
