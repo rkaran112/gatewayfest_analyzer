@@ -201,8 +201,9 @@ def load_data():
     df["Feedback on Fest"] = df["Feedback on Fest"].fillna("")
 
     def analyze(text):
-        pol = TextBlob(str(text)).sentiment.polarity
-        sub = TextBlob(str(text)).sentiment.subjectivity
+        sentiment = TextBlob(str(text)).sentiment
+        pol = sentiment.polarity
+        sub = sentiment.subjectivity
         label = "Positive" if pol > 0.05 else ("Negative" if pol < -0.05 else "Neutral")
         return pd.Series(
             {"Polarity": round(pol, 4), "Subjectivity": round(sub, 4), "Sentiment": label}
