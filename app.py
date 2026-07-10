@@ -871,8 +871,8 @@ with tab3:
 
     if len(fdf) > 0:
         college_sent = (
-            fdf.groupby("College")
-            .apply(lambda x: (x["Sentiment"] == "Positive").mean(), include_groups=False)
+            fdf.groupby("College")["Sentiment"]
+            .apply(lambda x: (x == "Positive").mean())
             .sort_values(ascending=False)
         )
         happiest = college_sent.index[0]
