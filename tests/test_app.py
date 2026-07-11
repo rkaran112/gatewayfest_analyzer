@@ -91,5 +91,21 @@ def test_build_benchmark_frame_ranks_higher_score_first():
     assert bench.iloc[0]["Benchmark_Score"] > bench.iloc[1]["Benchmark_Score"]
 
 
+def test_build_benchmark_frame_zero_revenue_does_not_divide_by_zero():
+    df = pd.DataFrame(
+        {
+            "Student Name": ["a", "b"],
+            "College": ["X", "Y"],
+            "Rating": [5, 4],
+            "Sentiment": ["Positive", "Neutral"],
+            "Amount Paid": [0, 0],
+        }
+    )
+    weights = {"participants": 1.0, "rating": 1.0, "sentiment": 1.0, "revenue": 1.0}
+    bench = app.build_benchmark_frame(df, "College", weights)
+    assert (bench["Revenue_Share"] == 0.0).all()
+    assert not bench["Revenue_Share"].isna().any()
+
+
 if __name__ == "__main__":
     raise SystemExit(pytest.main([__file__, "-v"]))
