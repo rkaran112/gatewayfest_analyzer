@@ -91,6 +91,21 @@ def test_build_benchmark_frame_ranks_higher_score_first():
     assert bench.iloc[0]["Benchmark_Score"] > bench.iloc[1]["Benchmark_Score"]
 
 
+def test_build_benchmark_frame_all_zero_weights_does_not_divide_by_zero():
+    df = pd.DataFrame(
+        {
+            "Student Name": ["a", "b", "c", "d"],
+            "College": ["X", "X", "Y", "Y"],
+            "Rating": [5, 5, 1, 1],
+            "Sentiment": ["Positive", "Positive", "Negative", "Negative"],
+            "Amount Paid": [100, 100, 10, 10],
+        }
+    )
+    weights = {"participants": 0.0, "rating": 0.0, "sentiment": 0.0, "revenue": 0.0}
+    bench = app.build_benchmark_frame(df, "College", weights)
+    assert (bench["Benchmark_Score"] == 0.0).all()
+
+
 def test_build_benchmark_frame_zero_revenue_does_not_divide_by_zero():
     df = pd.DataFrame(
         {
