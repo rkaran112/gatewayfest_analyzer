@@ -10,6 +10,17 @@ import pytest
 import app
 
 
+def test_chart_layout_uppercases_title_and_uses_default_height():
+    layout = app.chart_layout("revenue by event")
+    assert layout["title"]["text"] == "REVENUE BY EVENT"
+    assert layout["height"] == 400
+
+
+def test_chart_layout_respects_custom_height():
+    layout = app.chart_layout("Custom", height=520)
+    assert layout["height"] == 520
+
+
 def test_minmax_100_scales_between_0_and_100():
     result = app._minmax_100(pd.Series([10, 20, 30]))
     assert result.tolist() == [0.0, 50.0, 100.0]
