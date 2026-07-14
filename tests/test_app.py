@@ -133,5 +133,61 @@ def test_build_benchmark_frame_zero_revenue_does_not_divide_by_zero():
     assert not bench["Revenue_Share"].isna().any()
 
 
+def test_build_benchmark_frame_all_nan_dimension_returns_empty():
+    # groupby drops NaN keys, so an all-NaN dimension column yields zero groups
+    # even though the dimension column itself exists.
+    df = pd.DataFrame(
+        {
+            "Student Name": ["a", "b"],
+            "College": [None, None],
+            "Rating": [5, 4],
+            "Sentiment": ["Positive", "Neutral"],
+            "Amount Paid": [10, 20],
+        }
+    )
+    weights = {"participants": 1.0, "rating": 1.0, "sentiment": 1.0, "revenue": 1.0}
+    bench = app.build_benchmark_frame(df, "College", weights)
+    assert bench.empty
+
+
+def test_oracle_reports_top_event_state_and_negative_sentiment_alert():
+    df = pd.DataFrame(
+        {
+            "Event Name": ["A", "A", "B"],
+            "State": ["Karnataka", "Karnataka", "Kerala"],
+            "Sentiment": ["Positive", "Negative", "Negative"],
+            "Rating": [5, 2, 3],
+            "Amount Paid": [100, 50, 200],
+            "Event Type": ["Individual", "Group", "Individual"],
+            "College": ["X", "X", "Y"],
+        }
+    )
+    insights = app.oracle(df)
+    assert any("**A**" in line and "dominates" in line for line in insights)
+    assert any("**Karnataka**" in line and "leads" in line for line in insights)
+    # 2/3 negative is above the 15% alert threshold.
+    assert any("Post-mortem recommended" in line for line in insights)
+
+
+def test_oracle_healthy_sentiment_message_below_threshold():
+    df = pd.DataFrame(
+        {
+            "Event Name": ["A", "A", "A"],
+            "State": ["Karnataka", "Karnataka", "Karnataka"],
+            "Sentiment": ["Positive", "Positive", "Neutral"],
+            "Rating": [5, 4, 5],
+            "Amount Paid": [100, 100, 100],
+            "Event Type": ["Individual", "Individual", "Individual"],
+            "College": ["X", "X", "X"],
+        }
+    )
+    insights = app.oracle(df)
+    assert any("within healthy range" in line for line in insights)
+
+
+def test_oracle_empty_data_returns_single_message():
+    assert app.oracle(pd.DataFrame()) == ["No data matches current filters."]
+
+
 if __name__ == "__main__":
     raise SystemExit(pytest.main([__file__, "-v"]))
