@@ -818,9 +818,14 @@ with tab3:
         )
 
         top_st = data["State"].value_counts()
-        out.append(
-            f"🗺️ **{top_st.index[0]}** leads with **{top_st.iloc[0]}** participants ({top_st.iloc[0] / len(data) * 100:.0f}%). Expand outreach to **{top_st.index[-1]}** where participation is weakest."
-        )
+        if len(top_st) > 1:
+            out.append(
+                f"🗺️ **{top_st.index[0]}** leads with **{top_st.iloc[0]}** participants ({top_st.iloc[0] / len(data) * 100:.0f}%). Expand outreach to **{top_st.index[-1]}** where participation is weakest."
+            )
+        else:
+            out.append(
+                f"🗺️ **{top_st.index[0]}** is the only state represented, with **{top_st.iloc[0]}** participants. Broaden outreach to new states to diversify the participant base."
+            )
 
         neg_pct = (data["Sentiment"] == "Negative").sum() / len(data) * 100
         if neg_pct > 15:

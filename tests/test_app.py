@@ -169,6 +169,23 @@ def test_oracle_reports_top_event_state_and_negative_sentiment_alert():
     assert any("Post-mortem recommended" in line for line in insights)
 
 
+def test_oracle_single_state_does_not_recommend_expanding_to_itself():
+    df = pd.DataFrame(
+        {
+            "Event Name": ["A", "A", "B"],
+            "State": ["Karnataka", "Karnataka", "Karnataka"],
+            "Sentiment": ["Positive", "Positive", "Neutral"],
+            "Rating": [5, 4, 5],
+            "Amount Paid": [100, 100, 100],
+            "Event Type": ["Individual", "Individual", "Individual"],
+            "College": ["X", "X", "X"],
+        }
+    )
+    insights = app.oracle(df)
+    assert any("only state represented" in line for line in insights)
+    assert not any("Expand outreach" in line for line in insights)
+
+
 def test_oracle_healthy_sentiment_message_below_threshold():
     df = pd.DataFrame(
         {
