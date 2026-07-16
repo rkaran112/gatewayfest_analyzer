@@ -206,5 +206,27 @@ def test_oracle_empty_data_returns_single_message():
     assert app.oracle(pd.DataFrame()) == ["No data matches current filters."]
 
 
+def test_get_wc_returns_none_when_only_stopwords():
+    assert app.get_wc(["the", "and", "is"], "GnBu") is None
+
+
+def test_get_wc_returns_none_for_empty_input():
+    assert app.get_wc([], "GnBu") is None
+    assert app.get_wc(["", None], "GnBu") is None
+
+
+def test_get_wc_excludes_stopwords_and_short_tokens():
+    wc = app.get_wc(["The event was fantastic and the food was great"], "GnBu")
+    assert wc is not None
+    words = wc.words_
+    assert "event" in words
+    assert "fantastic" in words
+    assert "food" in words
+    assert "great" in words
+    assert "the" not in words
+    assert "and" not in words
+    assert "was" not in words
+
+
 if __name__ == "__main__":
     raise SystemExit(pytest.main([__file__, "-v"]))
