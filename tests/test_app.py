@@ -186,6 +186,23 @@ def test_oracle_single_state_does_not_recommend_expanding_to_itself():
     assert not any("Expand outreach" in line for line in insights)
 
 
+def test_oracle_single_event_does_not_report_gap_against_itself():
+    df = pd.DataFrame(
+        {
+            "Event Name": ["A", "A", "A"],
+            "State": ["Karnataka", "Kerala", "Karnataka"],
+            "Sentiment": ["Positive", "Positive", "Neutral"],
+            "Rating": [5, 4, 5],
+            "Amount Paid": [100, 100, 100],
+            "Event Type": ["Individual", "Individual", "Individual"],
+            "College": ["X", "X", "X"],
+        }
+    )
+    insights = app.oracle(df)
+    assert any("Only one event in this slice" in line for line in insights)
+    assert not any("Rating gap" in line for line in insights)
+
+
 def test_oracle_healthy_sentiment_message_below_threshold():
     df = pd.DataFrame(
         {

@@ -840,9 +840,12 @@ with tab3:
 
         ev_r = data.groupby("Event Name")["Rating"].mean()
         low, high = ev_r.idxmin(), ev_r.idxmax()
-        out.append(
-            f"⭐ Rating gap: **{high}** ({ev_r[high]:.2f}★) vs **{low}** ({ev_r[low]:.2f}★). Investigate logistics and mentorship for **{low}**."
-        )
+        if low != high:
+            out.append(
+                f"⭐ Rating gap: **{high}** ({ev_r[high]:.2f}★) vs **{low}** ({ev_r[low]:.2f}★). Investigate logistics and mentorship for **{low}**."
+            )
+        else:
+            out.append(f"⭐ Only one event in this slice — **{low}** averages **{ev_r[low]:.2f}★**.")
 
         total_rev = data["Amount Paid"].sum()
         rev_ev = data.groupby("Event Name")["Amount Paid"].sum()
