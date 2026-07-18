@@ -193,6 +193,15 @@ def detect_themes(text: str) -> list[str]:
     return hits or ["General"]
 
 
+def classify_sentiment(polarity: float) -> str:
+    """Label a TextBlob polarity score using the same +/-0.05 neutral band as the rest of the app."""
+    if polarity > 0.05:
+        return "Positive"
+    if polarity < -0.05:
+        return "Negative"
+    return "Neutral"
+
+
 @st.cache_data(show_spinner=False)
 def load_data():
     df = pd.read_csv(DATA_FILE)
@@ -204,9 +213,8 @@ def load_data():
         sentiment = TextBlob(str(text)).sentiment
         pol = sentiment.polarity
         sub = sentiment.subjectivity
-        label = "Positive" if pol > 0.05 else ("Negative" if pol < -0.05 else "Neutral")
         return pd.Series(
-            {"Polarity": round(pol, 4), "Subjectivity": round(sub, 4), "Sentiment": label}
+            {"Polarity": round(pol, 4), "Subjectivity": round(sub, 4), "Sentiment": classify_sentiment(pol)}
         )
 
     df[["Polarity", "Subjectivity", "Sentiment"]] = df["Feedback on Fest"].apply(analyze)

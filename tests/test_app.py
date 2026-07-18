@@ -71,6 +71,20 @@ def test_confidence_score_low_for_empty_feedback():
     assert app.confidence_score("", 0.0, "Neutral") == 0.0
 
 
+def test_classify_sentiment_positive_above_threshold():
+    assert app.classify_sentiment(0.06) == "Positive"
+
+
+def test_classify_sentiment_negative_below_threshold():
+    assert app.classify_sentiment(-0.06) == "Negative"
+
+
+def test_classify_sentiment_neutral_within_band():
+    assert app.classify_sentiment(0.0) == "Neutral"
+    assert app.classify_sentiment(0.05) == "Neutral"
+    assert app.classify_sentiment(-0.05) == "Neutral"
+
+
 def test_detect_themes_matches_known_theme():
     assert "Logistics" in app.detect_themes("the venue was crowded")
 
