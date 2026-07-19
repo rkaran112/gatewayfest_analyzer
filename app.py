@@ -193,6 +193,15 @@ def detect_themes(text: str) -> list[str]:
     return hits or ["General"]
 
 
+def compute_risk_score(negative_rate: pd.Series, avg_rating: pd.Series, avg_confidence: pd.Series) -> pd.Series:
+    """Weighted risk score blending negative-sentiment rate, rating shortfall, and confidence shortfall."""
+    return (
+        _minmax_100(negative_rate) * 0.5
+        + _minmax_100(5 - avg_rating) * 0.35
+        + _minmax_100(100 - avg_confidence) * 0.15
+    )
+
+
 def classify_sentiment(polarity: float) -> str:
     """Label a TextBlob polarity score using the same +/-0.05 neutral band as the rest of the app."""
     if polarity > 0.05:
@@ -466,10 +475,8 @@ with tab2:
         )
         .reset_index()
     )
-    risk_df["RiskScore"] = (
-        _minmax_100(risk_df["Negative_Rate"]) * 0.5
-        + _minmax_100(5 - risk_df["Avg_Rating"]) * 0.35
-        + _minmax_100(100 - risk_df["Avg_Confidence"]) * 0.15
+    risk_df["RiskScore"] = compute_risk_score(
+        risk_df["Negative_Rate"], risk_df["Avg_Rating"], risk_df["Avg_Confidence"]
     )
     risk_df = risk_df.sort_values("RiskScore", ascending=False).reset_index(drop=True)
 

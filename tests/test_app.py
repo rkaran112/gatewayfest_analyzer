@@ -71,6 +71,27 @@ def test_confidence_score_low_for_empty_feedback():
     assert app.confidence_score("", 0.0, "Neutral") == 0.0
 
 
+def test_compute_risk_score_ranks_worse_metrics_higher():
+    negative_rate = pd.Series([0.0, 50.0, 100.0])
+    avg_rating = pd.Series([5.0, 3.0, 1.0])
+    avg_confidence = pd.Series([100.0, 50.0, 0.0])
+    scores = app.compute_risk_score(negative_rate, avg_rating, avg_confidence)
+    assert scores.iloc[0] < scores.iloc[1] < scores.iloc[2]
+    assert scores.iloc[0] == 0.0
+    assert scores.iloc[2] == 100.0
+
+
+def test_compute_risk_score_weights_negative_rate_most_heavily():
+    # Worst negative rate alone should outweigh worst rating alone at these weights (0.5 vs 0.35).
+    worst_negative_only = app.compute_risk_score(
+        pd.Series([0.0, 100.0]), pd.Series([5.0, 5.0]), pd.Series([100.0, 100.0])
+    )
+    worst_rating_only = app.compute_risk_score(
+        pd.Series([0.0, 0.0]), pd.Series([5.0, 1.0]), pd.Series([100.0, 100.0])
+    )
+    assert worst_negative_only.iloc[1] > worst_rating_only.iloc[1]
+
+
 def test_classify_sentiment_positive_above_threshold():
     assert app.classify_sentiment(0.06) == "Positive"
 
