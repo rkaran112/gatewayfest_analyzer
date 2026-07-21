@@ -71,6 +71,16 @@ def test_confidence_score_low_for_empty_feedback():
     assert app.confidence_score("", 0.0, "Neutral") == 0.0
 
 
+def test_confidence_score_bonus_for_polarized_sentiment_over_neutral():
+    # Same text and polarity should score higher for Positive/Negative than Neutral,
+    # since only Positive/Negative sentiment earns the confidence bonus.
+    text, polarity = "great fun loved it here", 0.3
+    neutral_score = app.confidence_score(text, polarity, "Neutral")
+    positive_score = app.confidence_score(text, polarity, "Positive")
+    negative_score = app.confidence_score(text, polarity, "Negative")
+    assert positive_score == negative_score == neutral_score + 10.0
+
+
 def test_compute_risk_score_ranks_worse_metrics_higher():
     negative_rate = pd.Series([0.0, 50.0, 100.0])
     avg_rating = pd.Series([5.0, 3.0, 1.0])
@@ -112,6 +122,12 @@ def test_detect_themes_matches_known_theme():
 
 def test_detect_themes_defaults_to_general():
     assert app.detect_themes("nothing relevant here") == ["General"]
+
+
+def test_detect_themes_matches_multiple_themes_at_once():
+    # "mentor" hits Mentorship and "schedule" hits Scheduling in the same feedback.
+    themes = app.detect_themes("the mentor helped with the schedule")
+    assert set(themes) == {"Mentorship", "Scheduling"}
 
 
 def test_build_benchmark_frame_empty_for_missing_dimension():
