@@ -201,6 +201,40 @@ def test_build_benchmark_frame_all_nan_dimension_returns_empty():
     assert bench.empty
 
 
+def test_benchmark_brief_reports_leader_and_laggard_gap():
+    top_bench = pd.DataFrame(
+        {
+            "College": ["X", "Y"],
+            "Benchmark_Score": [90.0, 40.0],
+            "Participants": [10, 5],
+            "Avg_Rating": [4.5, 3.0],
+            "Positive_Rate": [80.0, 30.0],
+            "Revenue": [1000, 200],
+            "Revenue_Share": [83.3, 16.7],
+        }
+    )
+    insights = app.benchmark_brief(top_bench, "College", 2)
+    assert any("**X**" in line and "leads" in line for line in insights)
+    assert any("**Y**" in line and "trails" in line and "50.00" in line for line in insights)
+
+
+def test_benchmark_brief_single_entity_does_not_report_gap_against_itself():
+    top_bench = pd.DataFrame(
+        {
+            "College": ["X"],
+            "Benchmark_Score": [90.0],
+            "Participants": [10],
+            "Avg_Rating": [4.5],
+            "Positive_Rate": [80.0],
+            "Revenue": [1000],
+            "Revenue_Share": [100.0],
+        }
+    )
+    insights = app.benchmark_brief(top_bench, "College", 3)
+    assert any("Only one college in this slice" in line for line in insights)
+    assert not any("trails" in line for line in insights)
+
+
 def test_oracle_reports_top_event_state_and_negative_sentiment_alert():
     df = pd.DataFrame(
         {

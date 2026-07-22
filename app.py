@@ -145,6 +145,39 @@ def build_benchmark_frame(data: pd.DataFrame, dimension: str, weights: dict[str,
     return bench
 
 
+def benchmark_brief(top_bench: pd.DataFrame, benchmark_dim: str, top_n: int) -> list[str]:
+    """Human-readable insights for the Benchmark tab's top-N slice.
+
+    Skips the leader/laggard gap comparison when only one entity is present,
+    since comparing an entity's score against itself is a false "gap".
+    """
+    leader = top_bench.iloc[0]
+    msg = [
+        f"🏆 **{leader[benchmark_dim]}** leads with score **{leader['Benchmark_Score']:.2f}** and **{leader['Participants']}** participants."
+    ]
+    if len(top_bench) > 1:
+        laggard = top_bench.iloc[-1]
+        gap = leader["Benchmark_Score"] - laggard["Benchmark_Score"]
+        msg.append(
+            f"📉 **{laggard[benchmark_dim]}** trails at **{laggard['Benchmark_Score']:.2f}**. Score gap to leader: **{gap:.2f}** points."
+        )
+    else:
+        msg.append(f"📉 Only one {benchmark_dim.lower()} in this slice — no leader/laggard gap to compare.")
+    msg.append(
+        f"⭐ Highest average rating in top-{top_n}: **{top_bench.loc[top_bench['Avg_Rating'].idxmax(), benchmark_dim]}** ({top_bench['Avg_Rating'].max():.2f}★)."
+    )
+    msg.append(
+        f"💬 Strongest positive sentiment: **{top_bench.loc[top_bench['Positive_Rate'].idxmax(), benchmark_dim]}** ({top_bench['Positive_Rate'].max():.1f}%)."
+    )
+    msg.append(
+        f"💰 Largest revenue share: **{top_bench.loc[top_bench['Revenue'].idxmax(), benchmark_dim]}** at **{top_bench['Revenue_Share'].max():.1f}%** of benchmark revenue."
+    )
+    msg.append(
+        "🎯 Action: replicate top performer event operations and mentorship playbooks in the bottom quartile entities first."
+    )
+    return msg
+
+
 EMOTION_LEXICON = {
     "Joy": {"excellent", "fun", "loved", "engaging", "best", "fantastic", "creative", "stimulating"},
     "Trust": {"organized", "managed", "smooth", "efficient", "helpful", "insightful", "constructive"},
@@ -764,17 +797,7 @@ with tab4:
             )
             st.dataframe(score_table.reset_index(drop=True), use_container_width=True, height=320)
 
-            leader = top_bench.iloc[0]
-            laggard = top_bench.iloc[-1]
-            gap = leader["Benchmark_Score"] - laggard["Benchmark_Score"]
-            msg = [
-                f"🏆 **{leader[benchmark_dim]}** leads with score **{leader['Benchmark_Score']:.2f}** and **{leader['Participants']}** participants.",
-                f"📉 **{laggard[benchmark_dim]}** trails at **{laggard['Benchmark_Score']:.2f}**. Score gap to leader: **{gap:.2f}** points.",
-                f"⭐ Highest average rating in top-{top_n}: **{top_bench.loc[top_bench['Avg_Rating'].idxmax(), benchmark_dim]}** ({top_bench['Avg_Rating'].max():.2f}★).",
-                f"💬 Strongest positive sentiment: **{top_bench.loc[top_bench['Positive_Rate'].idxmax(), benchmark_dim]}** ({top_bench['Positive_Rate'].max():.1f}%).",
-                f"💰 Largest revenue share: **{top_bench.loc[top_bench['Revenue'].idxmax(), benchmark_dim]}** at **{top_bench['Revenue_Share'].max():.1f}%** of benchmark revenue.",
-                "🎯 Action: replicate top performer event operations and mentorship playbooks in the bottom quartile entities first.",
-            ]
+            msg = benchmark_brief(top_bench, benchmark_dim, top_n)
             st.markdown(
                 "<div style='font-family:Syne;font-size:0.72rem;letter-spacing:0.22em;color:#00D4FF;padding:1.2rem 0 0.8rem;'>⚡ BENCHMARK BRIEF</div>",
                 unsafe_allow_html=True,
