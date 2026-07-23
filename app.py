@@ -364,7 +364,7 @@ with tab1:
         )
         fig_map.update_geos(fitbounds="locations", visible=False)
         fig_map.update_layout(**chart_layout("Participant Density — India", height=520))
-        st.plotly_chart(fig_map, use_container_width=True)
+        st.plotly_chart(fig_map, width="stretch")
     else:
         st.info("No records for current filters.")
 
@@ -381,13 +381,13 @@ with tab1:
             color_continuous_scale=["#003D5C", "#00D4FF"],
         )
         fig_ev.update_layout(**chart_layout("Events — Participation Count", height=380))
-        st.plotly_chart(fig_ev, use_container_width=True)
+        st.plotly_chart(fig_ev, width="stretch")
     with c2:
         top_c = fdf["College"].value_counts().head(10).reset_index()
         top_c.columns = ["College", "Count"]
         fig_c = px.bar(top_c, x="Count", y="College", orientation="h", color_discrete_sequence=["#FF6B35"])
         fig_c.update_layout(**chart_layout("Top 10 Colleges", height=380))
-        st.plotly_chart(fig_c, use_container_width=True)
+        st.plotly_chart(fig_c, width="stretch")
 
     if len(state_agg) > 0:
         fig_tree = px.treemap(
@@ -399,7 +399,7 @@ with tab1:
             hover_data=["Revenue", "Colleges"],
         )
         fig_tree.update_layout(**chart_layout("State × Revenue Treemap", height=400))
-        st.plotly_chart(fig_tree, use_container_width=True)
+        st.plotly_chart(fig_tree, width="stretch")
 
 with tab2:
     avg_pol = fdf["Polarity"].mean() if len(fdf) > 0 else 0
@@ -448,7 +448,7 @@ with tab2:
             color_discrete_sequence=COLORS,
         )
         fig_em.update_layout(**chart_layout("Emotion Spectrum", height=340))
-        st.plotly_chart(fig_em, use_container_width=True)
+        st.plotly_chart(fig_em, width="stretch")
     with c2:
         pivot = signal_df.groupby(["Event Name", "Sentiment"]).size().unstack(fill_value=0)
         fig_h = go.Figure(
@@ -464,7 +464,7 @@ with tab2:
             )
         )
         fig_h.update_layout(**chart_layout("Event × Sentiment Matrix", height=340))
-        st.plotly_chart(fig_h, use_container_width=True)
+        st.plotly_chart(fig_h, width="stretch")
 
     # Confidence layer.
     conf1, conf2 = st.columns([1, 1.3])
@@ -487,14 +487,14 @@ with tab2:
             )
         )
         fig_g.update_layout(**chart_layout("Sentiment Confidence Gauge", height=330))
-        st.plotly_chart(fig_g, use_container_width=True)
+        st.plotly_chart(fig_g, width="stretch")
     with conf2:
         conf_dist = signal_df["ConfidenceBand"].value_counts(dropna=False).reset_index()
         conf_dist.columns = ["Band", "Count"]
         band_color = {"Low": "#EF476F", "Medium": "#FFD166", "High": "#00C896"}
         fig_cd = px.bar(conf_dist, x="Band", y="Count", color="Band", color_discrete_map=band_color)
         fig_cd.update_layout(**chart_layout("Confidence Distribution", height=330))
-        st.plotly_chart(fig_cd, use_container_width=True)
+        st.plotly_chart(fig_cd, width="stretch")
 
     # Risk radar.
     dim_choice = st.selectbox("Risk/Trend Dimension", ["Event Name", "State", "College"], key="act2_dim_choice")
@@ -526,7 +526,7 @@ with tab2:
             hover_data=["Negative_Rate", "Avg_Rating", "Avg_Confidence", "Participants"],
         )
         fig_risk.update_layout(**chart_layout(f"Risk Radar — {dim_choice}", height=360))
-        st.plotly_chart(fig_risk, use_container_width=True)
+        st.plotly_chart(fig_risk, width="stretch")
     with r2:
         risk_table = worst[[dim_choice, "RiskScore", "Negative_Rate", "Avg_Rating", "Avg_Confidence", "Participants"]].copy()
         risk_table["RiskScore"] = risk_table["RiskScore"].round(2)
@@ -537,7 +537,7 @@ with tab2:
             "<div style='font-family:Syne;font-size:0.7rem;letter-spacing:0.2em;color:#EF476F;padding:0.4rem 0 0.5rem;'>RISK ALERT TABLE</div>",
             unsafe_allow_html=True,
         )
-        st.dataframe(risk_table, use_container_width=True, height=360)
+        st.dataframe(risk_table, width="stretch", height=360)
 
     # Signal trend map.
     trend_df = (
@@ -560,7 +560,7 @@ with tab2:
         color_continuous_scale=["#003D5C", "#00D4FF"],
     )
     fig_trend.update_layout(**chart_layout(f"Signal by {dim_choice}", height=380))
-    st.plotly_chart(fig_trend, use_container_width=True)
+    st.plotly_chart(fig_trend, width="stretch")
 
     # Root-cause heatmap.
     theme_rows = []
@@ -586,7 +586,7 @@ with tab2:
             )
         )
         fig_theme.update_layout(**chart_layout("Root-Cause Theme Heatmap", height=350))
-        st.plotly_chart(fig_theme, use_container_width=True)
+        st.plotly_chart(fig_theme, width="stretch")
     else:
         st.info("No theme-level keywords detected in current feedback slice.")
 
@@ -655,7 +655,7 @@ with tab2:
                 fig_wc, ax = plt.subplots(figsize=(5, 2.5), facecolor="#111827")
                 ax.imshow(wc, interpolation="bilinear")
                 ax.axis("off")
-                st.pyplot(fig_wc, use_container_width=True)
+                st.pyplot(fig_wc, width="stretch")
                 plt.close(fig_wc)
             else:
                 st.info(f"No {sent.lower()} feedback in selection")
@@ -670,7 +670,7 @@ with tab2:
         color_discrete_sequence=COLORS,
     )
     fig_v.update_layout(**chart_layout("Rating Distribution by Event", height=400))
-    st.plotly_chart(fig_v, use_container_width=True)
+    st.plotly_chart(fig_v, width="stretch")
 
     st.markdown(
         "<div style='font-family:Syne;font-size:0.72rem;letter-spacing:0.2em;color:#6B7A99;padding:1rem 0 0.5rem;'>◆ FEEDBACK EXPLORER</div>",
@@ -680,7 +680,7 @@ with tab2:
     tbl = fdf[["Student Name", "College", "State", "Event Name", "Rating", "Sentiment", "Feedback on Fest"]].copy()
     if kw:
         tbl = tbl[tbl["Feedback on Fest"].str.contains(kw, case=False, na=False, regex=False)]
-    st.dataframe(tbl.reset_index(drop=True), use_container_width=True, height=320)
+    st.dataframe(tbl.reset_index(drop=True), width="stretch", height=320)
 
 with tab4:
     st.markdown(
@@ -736,7 +736,7 @@ with tab4:
             )
             fig_rank.update_traces(texttemplate="%{text:.1f}", textposition="outside")
             fig_rank.update_layout(**chart_layout(f"Benchmark Ranking — Top {top_n}", height=420))
-            st.plotly_chart(fig_rank, use_container_width=True)
+            st.plotly_chart(fig_rank, width="stretch")
 
             v1, v2 = st.columns([1.2, 1.4])
             with v1:
@@ -761,7 +761,7 @@ with tab4:
                         bgcolor="rgba(0,0,0,0)",
                     ),
                 )
-                st.plotly_chart(fig_radar, use_container_width=True)
+                st.plotly_chart(fig_radar, width="stretch")
 
             with v2:
                 fig_scatter = px.scatter(
@@ -775,7 +775,7 @@ with tab4:
                     color_continuous_scale=["#111827", "#00D4FF"],
                 )
                 fig_scatter.update_layout(**chart_layout("Quality vs Sentiment Map", height=420))
-                st.plotly_chart(fig_scatter, use_container_width=True)
+                st.plotly_chart(fig_scatter, width="stretch")
 
             table_cols = [
                 "Rank",
@@ -795,7 +795,7 @@ with tab4:
                 "<div style='font-family:Syne;font-size:0.72rem;letter-spacing:0.2em;color:#6B7A99;padding:1rem 0 0.5rem;'>◆ BENCHMARK SCORECARD</div>",
                 unsafe_allow_html=True,
             )
-            st.dataframe(score_table.reset_index(drop=True), use_container_width=True, height=320)
+            st.dataframe(score_table.reset_index(drop=True), width="stretch", height=320)
 
             msg = benchmark_brief(top_bench, benchmark_dim, top_n)
             st.markdown(
@@ -823,7 +823,7 @@ with tab3:
         )
     )
     fig_fn.update_layout(**chart_layout("Engagement Funnel", height=320))
-    st.plotly_chart(fig_fn, use_container_width=True)
+    st.plotly_chart(fig_fn, width="stretch")
 
     rc1, rc2 = st.columns(2)
     with rc1:
@@ -836,14 +836,14 @@ with tab3:
             color_continuous_scale=["#003D5C", "#FF6B35"],
         )
         fig_rev.update_layout(**chart_layout("Revenue by Event", height=350))
-        st.plotly_chart(fig_rev, use_container_width=True)
+        st.plotly_chart(fig_rev, width="stretch")
     with rc2:
         rev_type = fdf.groupby("Event Type")["Amount Paid"].sum().reset_index()
         fig_rt = px.pie(
             rev_type, names="Event Type", values="Amount Paid", hole=0.55, color_discrete_sequence=["#00D4FF", "#FF6B35"]
         )
         fig_rt.update_layout(**chart_layout("Individual vs Group Revenue", height=350))
-        st.plotly_chart(fig_rt, use_container_width=True)
+        st.plotly_chart(fig_rt, width="stretch")
 
     def oracle(data):
         if len(data) == 0:
